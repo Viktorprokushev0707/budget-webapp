@@ -1,61 +1,84 @@
-let budgetPerDay = 0;
-let remainingToday = 0;
-let today = new Date().toISOString().slice(0, 10);
-
-function saveSettings() {
-  const salary = Number(document.getElementById("salary").value);
-  const fixed = Number(document.getElementById("fixed").value);
-  const savings = salary * 0.15;
-  const days = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
-  const variable = salary - fixed - savings;
-  budgetPerDay = Math.floor(variable / days);
-  remainingToday = budgetPerDay;
-
-  localStorage.setItem("dailyBudget", budgetPerDay);
-  localStorage.setItem("remaining", remainingToday);
-  localStorage.setItem("expenses", JSON.stringify([]));
-  localStorage.setItem("date", today);
-
-  document.getElementById("settings").style.display = "none";
-  document.getElementById("main").style.display = "block";
-
-  updateUI();
+body {
+  font-family: sans-serif;
+  background: #f4f4f4;
+  margin: 0;
+  padding: 20px;
 }
 
-function addExpense() {
-  const desc = document.getElementById("desc").value;
-  const amount = Number(document.getElementById("amount").value);
-  if (!desc || !amount) return;
-
-  let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-  expenses.push({ desc, amount });
-  localStorage.setItem("expenses", JSON.stringify(expenses));
-
-  remainingToday -= amount;
-  localStorage.setItem("remaining", remainingToday);
-
-  updateUI();
+.container {
+  max-width: 500px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
 }
 
-function updateUI() {
-  document.getElementById("dailyBudget").innerText = localStorage.getItem("dailyBudget") || 0;
-  document.getElementById("remaining").innerText = localStorage.getItem("remaining") || 0;
-
-  const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-  const list = document.getElementById("expenses");
-  list.innerHTML = "";
-  expenses.forEach(exp => {
-    const li = document.createElement("li");
-    li.innerText = `${exp.desc} — ${exp.amount} ₽`;
-    list.appendChild(li);
-  });
+h1, h2, h3 {
+  margin: 0 0 10px;
 }
 
-window.onload = () => {
-  const savedDate = localStorage.getItem("date");
-  if (savedDate === today) {
-    document.getElementById("settings").style.display = "none";
-    document.getElementById("main").style.display = "block";
-    updateUI();
-  }
-};
+input[type="number"],
+input[type="text"] {
+  display: block;
+  margin: 10px 0;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+button {
+  padding: 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.buttonsRow {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.status {
+  margin: 20px 0;
+  font-weight: normal;
+  background: #f9f9f9;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+#expensesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#expensesList li {
+  margin: 5px 0;
+  background: #e4e4e4;
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+#monthTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+#monthTable th,
+#monthTable td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+.addExpense {
+  margin-bottom: 15px;
+}
