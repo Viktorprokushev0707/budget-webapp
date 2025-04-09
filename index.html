@@ -7,29 +7,58 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
+<div class="container">
+  <!-- Секция настроек -->
+  <div id="settingsSection">
     <h1>Настройки бюджета</h1>
-    <div id="settings">
-      <input id="salary" type="number" placeholder="Зарплата за месяц" />
-      <input id="fixed" type="number" placeholder="Обязательные траты" />
-      <button onclick="saveSettings()">Сохранить и продолжить</button>
-    </div>
-
-    <div id="main" style="display:none;">
-      <h2>Добавить трату</h2>
-      <input id="desc" type="text" placeholder="На что потратил?" />
-      <input id="amount" type="number" placeholder="Сколько потратил?" />
-      <button onclick="addExpense()">Добавить</button>
-
-      <div class="status">
-        <p>Бюджет на день: <span id="dailyBudget"></span> ₽</p>
-        <p>Осталось сегодня: <span id="remaining"></span> ₽</p>
-      </div>
-
-      <ul id="expenses"></ul>
-    </div>
+    <input id="salary" type="number" placeholder="Зарплата за месяц" />
+    <input id="fixed" type="number" placeholder="Обязательные траты" />
+    <button id="saveBtn">Сохранить и пересчитать</button>
   </div>
 
-  <script src="script.js"></script>
+  <!-- Основной интерфейс -->
+  <div id="mainSection" style="display:none;">
+    <h2>Добавить трату</h2>
+    <div class="addExpense">
+      <input id="desc" type="text" placeholder="На что потратил?" />
+      <input id="amount" type="number" placeholder="Сколько потратил?" />
+      <button id="addBtn">Добавить</button>
+    </div>
+
+    <!-- Инфа о сегодняшнем дне -->
+    <div class="status">
+      <p>Сегодня: <span id="todayDate"></span></p>
+      <p>Лимит на день: <span id="dailyBudget"></span> ₽</p>
+      <p>Осталось сегодня: <span id="remainingToday"></span> ₽</p>
+    </div>
+
+    <!-- Кнопки -->
+    <div class="buttonsRow">
+      <button id="toggleSettingsBtn">Изменить настройки</button>
+      <button id="resetBtn">Сбросить все данные</button>
+    </div>
+
+    <!-- Список расходов за сегодня -->
+    <ul id="expensesList"></ul>
+
+    <hr />
+
+    <!-- Таблица всех дней месяца -->
+    <h3>Все дни месяца</h3>
+    <table id="monthTable">
+      <thead>
+        <tr>
+          <th>День</th>
+          <th>Лимит</th>
+          <th>Потрачено</th>
+          <th>Остаток</th>
+        </tr>
+      </thead>
+      <tbody id="monthTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
