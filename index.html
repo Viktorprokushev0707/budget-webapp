@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ежедневный бюджет</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Настройки бюджета</h1>
+    <div id="settings">
+      <input id="salary" type="number" placeholder="Зарплата за месяц" />
+      <input id="fixed" type="number" placeholder="Обязательные траты" />
+      <button onclick="saveSettings()">Сохранить и продолжить</button>
+    </div>
+
+    <div id="main" style="display:none;">
+      <h2>Добавить трату</h2>
+      <input id="desc" type="text" placeholder="На что потратил?" />
+      <input id="amount" type="number" placeholder="Сколько потратил?" />
+      <button onclick="addExpense()">Добавить</button>
+
+      <div class="status">
+        <p>Бюджет на день: <span id="dailyBudget"></span> ₽</p>
+        <p>Осталось сегодня: <span id="remaining"></span> ₽</p>
+      </div>
+
+      <ul id="expenses"></ul>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
