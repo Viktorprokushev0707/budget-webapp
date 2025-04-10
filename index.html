@@ -12,7 +12,13 @@
   <div id="settingsSection">
     <h1>Настройки бюджета</h1>
     <input id="salary" type="number" placeholder="Зарплата за месяц" />
-    <input id="fixed" type="number" placeholder="Обязательные траты" />
+    <input id="fixed" type="number" placeholder="Обязательные траты" /><br><br>
+    <label for="currency">Валюта:</label>
+    <select id="currency">
+      <option value="RUB" selected>Рубль</option>
+      <option value="USD">Доллар</option>
+      <option value="EUR">Евро</option>
+    </select><br><br>
     <button id="saveBtn">Сохранить и пересчитать</button>
   </div>
 

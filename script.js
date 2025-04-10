@@ -4,6 +4,7 @@
 let salary = 0;               // Зарплата
 let fixed = 0;                // Обязательные траты
 let savings = 0;              // 15% сбережений
+let currency = "₽";            // Валюта
 let budgetPerDay = 0;         // Лимит на день
 let daysInMonth = 0;          // Кол-во дней в месяце
 let startOfMonth = "";        // Дата в формате YYYY-MM-01
@@ -40,6 +41,7 @@ function saveSettings() {
   const salaryInput = document.getElementById("salary").value;
   const fixedInput = document.getElementById("fixed").value;
 
+  currency = document.getElementById("currency").value;
   salary = Number(salaryInput) || 0;
   fixed = Number(fixedInput) || 0;
   savings = salary * 0.15;
@@ -53,12 +55,14 @@ function saveSettings() {
   localStorage.setItem("expensesData", JSON.stringify(expensesData));
 
   localStorage.setItem("salary", salary);
+  localStorage.setItem("currency", currency);
   localStorage.setItem("fixed", fixed);
   localStorage.setItem("savings", savings);
   localStorage.setItem("budgetPerDay", budgetPerDay);
   localStorage.setItem("daysInMonth", daysInMonth);
 
   // Сохраняем дату начала месяца
+
   startOfMonth = formatDate(getMonthStart());
   localStorage.setItem("startOfMonth", startOfMonth);
 
@@ -68,6 +72,7 @@ function saveSettings() {
 // Загружаем настройки из localStorage
 function loadSettings() {
   salary = Number(localStorage.getItem("salary")) || 0;
+  currency = localStorage.getItem("currency") || "₽";
   fixed = Number(localStorage.getItem("fixed")) || 0;
   savings = Number(localStorage.getItem("savings")) || 0;
   budgetPerDay = Number(localStorage.getItem("budgetPerDay")) || 0;
@@ -169,7 +174,8 @@ function renderApp() {
   // Заполним поля настроек (чтобы можно было изменить)
   document.getElementById("salary").value = salary;
   document.getElementById("fixed").value = fixed;
-
+  document.getElementById("currency").value = currency;
+  
   // Инфа о сегодняшнем дне
   const todayStr = formatDate(new Date());
   document.getElementById("todayDate").innerText = todayStr;
@@ -190,8 +196,8 @@ function renderApp() {
   const todayExpenses = expensesData[todayStr] || [];
   todayExpenses.forEach((exp, idx) => {
     const li = document.createElement("li");
-    li.innerText = `${exp.desc} — ${exp.amount} ₽`;
-    // Кнопка удаления
+    li.innerText = `${exp.desc} — ${exp.amount} ${currency}`;
+    li.innerText = `${exp.desc} — ${exp.amount} ${currency}`;
     const delBtn = document.createElement("button");
     delBtn.textContent = "X";
     delBtn.style.backgroundColor = "#f44336";
@@ -212,13 +218,38 @@ function renderApp() {
     tdDate.innerText = d.dateStr;
 
     const tdBudget = document.createElement("td");
-    tdBudget.innerText = d.dayBudget;
+    tdBudget.innerText = `${d.dayBudget} ${currency}`;
 
     const tdSpent = document.createElement("td");
-    tdSpent.innerText = d.spent;
+    tdSpent.innerText = `${d.spent} ${currency}`;
 
     const tdLeft = document.createElement("td");
-    tdLeft.innerText = d.leftover;
+    tdLeft.innerText = `${d.leftover} ${currency}`;
+
+    // Кнопка "Добавить расход" для каждого дня
+    const tdAddExpense = document.createElement("td");
+    const addExpenseBtn = document.createElement("button");
+    addExpenseBtn.textContent = "+";
+    addExpenseBtn.onclick = () => {
+      const desc = prompt("На что потрачено?");
+      const amount = Number(prompt("Сколько потрачено?"));
+      if (desc && amount) {
+        if (!expensesData[d.dateStr]) {
+          expensesData[d.dateStr] = [];
+        }
+        expensesData[d.dateStr].push({ desc, amount });
+        localStorage.setItem("expensesData", JSON.stringify(expensesData));
+        renderApp();
+      }
+    };
+    tdAddExpense.appendChild(addExpenseBtn);
+
+    // Отображение расходов за день
+    const expensesForDay = expensesData[d.dateStr] || [];
+    const expensesListForDay = expensesForDay.map((exp, index) =>
+      `<li style="background: #e4e4e4; padding: 8px; border-radius: 4px; display: flex; justify-content: space-between;">${exp.desc} — ${exp.amount} ${currency} <button style="background-color: #f44336; margin-left: 10px;" onclick="deleteExpense('${d.dateStr}', ${index})">Удалить</button></li>`
+    ).join("");
+    tdSpent.innerHTML += `<ul style="list-style: none; padding: 0; margin: 5px 0;">${expensesListForDay}</ul>`;
 
     tr.appendChild(tdDate);
     tr.appendChild(tdBudget);
