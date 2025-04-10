@@ -88,22 +88,27 @@ function loadSettings() {
   }
 }
 
-// Добавить трату на сегодня
-function addExpense() {
-  const descInput = document.getElementById("desc");
-  const amountInput = document.getElementById("amount");
+// Обработчик изменения даты
+function onDateChanged(event) {
+  const selectedDate = event.target.value;
+  renderExpensesForDate(selectedDate);
+}
+
+// Добавить трату за выбранный день
+function addExpenseForDate(dateStr) {
+  const descInput = document.getElementById("descInput");
+  const amountInput = document.getElementById("amountInput");
 
   const desc = descInput.value.trim();
   const amount = Number(amountInput.value);
 
   if (!desc || !amount) return;
 
-  const todayStr = formatDate(new Date());
-  if (!expensesData[todayStr]) {
-    expensesData[todayStr] = [];
+  if (!expensesData[dateStr]) {
+    expensesData[dateStr] = [];
   }
 
-  expensesData[todayStr].push({ desc, amount });
+  expensesData[dateStr].push({ desc, amount });
 
   // Сохраняем
   localStorage.setItem("expensesData", JSON.stringify(expensesData));
@@ -111,8 +116,28 @@ function addExpense() {
   descInput.value = "";
   amountInput.value = "";
 
-  renderApp(); // обновляем интерфейс
+  renderExpensesForDate(dateStr);
 }
+
+// Показать расходы за выбранный день
+function renderExpensesForDate(dateStr) {
+  const expensesList = document.getElementById("expensesList");
+  const noExpensesMessage = document.getElementById("noExpensesMessage");
+  expensesList.innerHTML = ""; // Очищаем список
+
+  const expensesForDay = expensesData[dateStr] || [];
+  if (expensesForDay.length > 0) {
+    expensesForDay.forEach((exp, index) => {
+      const li = document.createElement("li");
+      li.innerHTML = `${exp.desc} — ${exp.amount} ${currency} <button onclick="deleteExpense('${dateStr}', ${index})">Удалить</button>`;
+      expensesList.appendChild(li);
+    });
+    noExpensesMessage.style.display = "none";
+  } else {
+    noExpensesMessage.style.display = "block";
+  }
+}
+
 
 // Удалить одну трату
 function deleteExpense(dayStr, index) {
@@ -160,7 +185,7 @@ function computeDailyLeftovers() {
 // Рендерим весь интерфейс
 function renderApp() {
   loadSettings(); // подгрузим новые настройки
-
+  
   // Проверим, есть ли salary, и показывать ли mainSection
   if (salary > 0) {
     document.getElementById("settingsSection").style.display = "none";
@@ -173,76 +198,19 @@ function renderApp() {
 
   // Заполним поля настроек (чтобы можно было изменить)
   document.getElementById("salary").value = salary;
-  document.getElementById("fixed").value = fixed;
+    document.getElementById("fixed").value = fixed;
   document.getElementById("currency").value = currency;
-  
-  // Инфа о сегодняшнем дне
-  const todayStr = formatDate(new Date());
-  document.getElementById("todayDate").innerText = todayStr;
+
+  // Устанавливаем текущую дату в элементе выбора даты
+  const datePicker = document.getElementById("datePicker");
+  datePicker.value = formatDate(new Date());
+  datePicker.onchange = onDateChanged;
+
+  // Отображаем расходы за текущий день
+  renderExpensesForDate(datePicker.value);
   document.getElementById("dailyBudget").innerText = budgetPerDay;
   document.getElementById("currencySymbol").innerText = currency;
-  // Считаем всю таблицу
-  const dailyData = computeDailyLeftovers();
-
-  // Находим сегодняшнюю строку
-  const todayData = dailyData.find(d => d.dateStr === todayStr) || { dayBudget: 0, leftover: 0 };
-  document.getElementById("remainingToday").innerText = todayData.leftover >= 0
-    ? todayData.leftover
-    : `-${Math.abs(todayData.leftover)}`;
-
-  // Заполним таблицу всех дней
-  const tbody = document.getElementById("monthTableBody");
-  tbody.innerHTML = "";
-  dailyData.forEach(d => {
-    const tr = document.createElement("tr");
-
-    const tdDate = document.createElement("td");
-    tdDate.innerText = d.dateStr;
-
-    const tdBudget = document.createElement("td");
-    tdBudget.innerText = `${d.dayBudget} ${currency}`;
-
-    const tdSpent = document.createElement("td");
-    tdSpent.innerText = `${d.spent} ${currency}`;
-
-    const tdLeft = document.createElement("td");
-    tdLeft.innerText = `${d.leftover} ${currency}`;
-
-    // Кнопка "Редактировать" для каждого дня
-    const tdEdit = document.createElement("td");
-    const editBtn = document.createElement("button");
-    editBtn.textContent = "Редактировать";
-    editBtn.onclick = () => showEditExpenses(d.dateStr);
-    tdEdit.appendChild(editBtn);
-
-    tr.appendChild(tdDate);
-    tr.appendChild(tdBudget);
-    tr.appendChild(tdSpent);
-    tr.appendChild(tdLeft);
-    tr.appendChild(tdEdit);
-    tbody.appendChild(tr);
-  });
-}
-
-function showEditExpenses(dateStr) {
   document.getElementById("monthTable").style.display = "none";
-  document.getElementById("editExpensesSection").style.display = "block";
-  document.getElementById("editExpensesDate").innerText = dateStr;
-
-  const expensesList = document.getElementById("editExpensesList");
-  expensesList.innerHTML = "";
-  const expensesForDay = expensesData[dateStr] || [];
-  expensesForDay.forEach((exp, index) => {
-    const li = document.createElement("li");
-    li.innerHTML = `${exp.desc} — ${exp.amount} ${currency} <button onclick="deleteExpense('${dateStr}', ${index})">Удалить</button>`;
-    expensesList.appendChild(li);
-  });
-}
-
-function hideEditExpenses() {
-  document.getElementById("monthTable").style.display = "table";
-  document.getElementById("editExpensesSection").style.display = "none";
-  renderApp();
 }
 
 // Сбросить все данные
@@ -260,16 +228,20 @@ window.onload = () => {
   loadSettings();
   renderApp();
 
+  // Вешаем обработчик на кнопку добавления расхода
+  document.getElementById("addBtn").onclick = () => {
+    const selectedDate = document.getElementById("datePicker").value;
+    addExpenseForDate(selectedDate);
+  };
+
   // Кнопка "Сохранить и пересчитать"
   document.getElementById("saveBtn").onclick = saveSettings;
-
-  // Кнопка "Добавить трату"
-  document.getElementById("addBtn").onclick = addExpense;
 
   // Кнопка "Изменить настройки"
   document.getElementById("toggleSettingsBtn").onclick = () => {
     document.getElementById("settingsSection").style.display = "block";
     document.getElementById("mainSection").style.display = "none";
+    document.getElementById("monthTable").style.display = "none";
   };
 
   // Кнопка "Сбросить все данные"

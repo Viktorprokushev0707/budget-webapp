@@ -33,11 +33,20 @@
 
     <!-- Инфа о сегодняшнем дне -->
     <div class="status">
-      <p>Сегодня: <span id="todayDate"></span></p>
+      <p>Выбрать дату: <input type="date" id="selectedDate"></p>
       <p>Лимит на день: <span id="dailyBudget"></span> ₽</p>
       <p>Осталось сегодня: <span id="remainingToday"></span> ₽</p>
     </div>
 
+    <!-- Расходы за выбранный день -->
+    <div id="selectedDayExpenses">
+      <h3>Расходы за <span id="selectedDay"></span></h3>
+      <ul id="selectedDayExpensesList"></ul>
+      <div class="addExpense">
+        <input id="newDesc" type="text" placeholder="На что потратил?" />
+        <input id="newAmount" type="number" placeholder="Сколько потратил?" />
+        <button id="addExpenseForSelectedDayBtn">Добавить</button>
+      </div>
     <!-- Кнопки -->
     <div class="buttonsRow">
       <button id="toggleSettingsBtn">Изменить настройки</button>
