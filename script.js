@@ -93,6 +93,8 @@ function addExpense() {
 
   if (!desc || !amount) return;
 
+  console.log('addExpense called:', desc, amount, expensesData);
+
   const todayStr = formatDate(new Date());
   if (!expensesData[todayStr]) {
     expensesData[todayStr] = [];
