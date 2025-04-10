@@ -88,12 +88,6 @@ function loadSettings() {
   }
 }
 
-// Обработчик изменения даты
-function onDateChanged(event) {
-  const selectedDate = event.target.value;
-  renderExpensesForDate(selectedDate);
-}
-
 // Добавить трату за выбранный день
 function addExpenseForDate(dateStr) {
   const descInput = document.getElementById("descInput");
@@ -211,7 +205,6 @@ function renderApp() {
   document.getElementById("dailyBudget").innerText = budgetPerDay;
   document.getElementById("currencySymbol").innerText = currency;
   document.getElementById("monthTable").style.display = "none";
-}
 
 // Сбросить все данные
 function resetAll() {
@@ -227,6 +220,10 @@ function resetAll() {
 window.onload = () => {
   loadSettings();
   renderApp();
+
+  // Обработчик изменения даты
+  const datePicker = document.getElementById("datePicker");
+  datePicker.onchange = () => renderExpensesForDate(datePicker.value);
 
   // Вешаем обработчик на кнопку добавления расхода
   document.getElementById("addBtn").onclick = () => {
