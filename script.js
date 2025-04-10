@@ -180,7 +180,7 @@ function renderApp() {
   const todayStr = formatDate(new Date());
   document.getElementById("todayDate").innerText = todayStr;
   document.getElementById("dailyBudget").innerText = budgetPerDay;
-
+  document.getElementById("currencySymbol").innerText = currency;
   // Считаем всю таблицу
   const dailyData = computeDailyLeftovers();
 
@@ -189,24 +189,6 @@ function renderApp() {
   document.getElementById("remainingToday").innerText = todayData.leftover >= 0
     ? todayData.leftover
     : `-${Math.abs(todayData.leftover)}`;
-
-  // Отобразим расходы за сегодня
-  const expensesList = document.getElementById("expensesList");
-  expensesList.innerHTML = "";
-  const todayExpenses = expensesData[todayStr] || [];
-  todayExpenses.forEach((exp, idx) => {
-    const li = document.createElement("li");
-    li.innerText = `${exp.desc} — ${exp.amount} ${currency}`;
-    li.innerText = `${exp.desc} — ${exp.amount} ${currency}`;
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "X";
-    delBtn.style.backgroundColor = "#f44336";
-    delBtn.style.marginLeft = "10px";
-    delBtn.onclick = () => deleteExpense(todayStr, idx);
-
-    li.appendChild(delBtn);
-    expensesList.appendChild(li);
-  });
 
   // Заполним таблицу всех дней
   const tbody = document.getElementById("monthTableBody");
@@ -226,37 +208,41 @@ function renderApp() {
     const tdLeft = document.createElement("td");
     tdLeft.innerText = `${d.leftover} ${currency}`;
 
-    // Кнопка "Добавить расход" для каждого дня
-    const tdAddExpense = document.createElement("td");
-    const addExpenseBtn = document.createElement("button");
-    addExpenseBtn.textContent = "+";
-    addExpenseBtn.onclick = () => {
-      const desc = prompt("На что потрачено?");
-      const amount = Number(prompt("Сколько потрачено?"));
-      if (desc && amount) {
-        if (!expensesData[d.dateStr]) {
-          expensesData[d.dateStr] = [];
-        }
-        expensesData[d.dateStr].push({ desc, amount });
-        localStorage.setItem("expensesData", JSON.stringify(expensesData));
-        renderApp();
-      }
-    };
-    tdAddExpense.appendChild(addExpenseBtn);
-
-    // Отображение расходов за день
-    const expensesForDay = expensesData[d.dateStr] || [];
-    const expensesListForDay = expensesForDay.map((exp, index) =>
-      `<li style="background: #e4e4e4; padding: 8px; border-radius: 4px; display: flex; justify-content: space-between;">${exp.desc} — ${exp.amount} ${currency} <button style="background-color: #f44336; margin-left: 10px;" onclick="deleteExpense('${d.dateStr}', ${index})">Удалить</button></li>`
-    ).join("");
-    tdSpent.innerHTML += `<ul style="list-style: none; padding: 0; margin: 5px 0;">${expensesListForDay}</ul>`;
+    // Кнопка "Редактировать" для каждого дня
+    const tdEdit = document.createElement("td");
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "Редактировать";
+    editBtn.onclick = () => showEditExpenses(d.dateStr);
+    tdEdit.appendChild(editBtn);
 
     tr.appendChild(tdDate);
     tr.appendChild(tdBudget);
     tr.appendChild(tdSpent);
     tr.appendChild(tdLeft);
+    tr.appendChild(tdEdit);
     tbody.appendChild(tr);
   });
+}
+
+function showEditExpenses(dateStr) {
+  document.getElementById("monthTable").style.display = "none";
+  document.getElementById("editExpensesSection").style.display = "block";
+  document.getElementById("editExpensesDate").innerText = dateStr;
+
+  const expensesList = document.getElementById("editExpensesList");
+  expensesList.innerHTML = "";
+  const expensesForDay = expensesData[dateStr] || [];
+  expensesForDay.forEach((exp, index) => {
+    const li = document.createElement("li");
+    li.innerHTML = `${exp.desc} — ${exp.amount} ${currency} <button onclick="deleteExpense('${dateStr}', ${index})">Удалить</button>`;
+    expensesList.appendChild(li);
+  });
+}
+
+function hideEditExpenses() {
+  document.getElementById("monthTable").style.display = "table";
+  document.getElementById("editExpensesSection").style.display = "none";
+  renderApp();
 }
 
 // Сбросить все данные
