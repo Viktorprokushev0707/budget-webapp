@@ -176,6 +176,56 @@ function computeDailyLeftovers() {
   return result;
 }
 
+// Обработчик изменения даты в datePicker
+function onDateChanged() {
+  const datePicker = document.getElementById("datePicker");
+  const selectedDate = datePicker.value;
+  renderExpensesForDate(selectedDate);
+
+  // Подсвечиваем выбранный день в таблице
+  highlightSelectedDate(selectedDate);
+}
+
+// Подсвечиваем выбранный день в таблице
+function highlightSelectedDate(dateStr) {
+  const tbody = document.getElementById("monthTableBody");
+  const rows = tbody.querySelectorAll("tr");
+
+  rows.forEach(row => {
+    const dateCell = row.querySelector("td:first-child");
+    if (dateCell && dateCell.innerText === dateStr) {
+      row.classList.add("selected-day");
+    } else {
+      row.classList.remove("selected-day");
+    }
+  });
+}
+
+// Генерируем HTML для таблицы месяца
+function renderMonthTable() {
+  const tbody = document.getElementById("monthTableBody");
+  tbody.innerHTML = "";
+
+  const dailyData = computeDailyLeftovers();
+
+  dailyData.forEach(d => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${d.dateStr}</td>
+      <td>${d.dayBudget.toFixed(2)} ${currency}</td>
+      <td>${d.spent.toFixed(2)} ${currency}</td>
+      <td>${d.leftover.toFixed(2)} ${currency}</td>
+      <td><button onclick="showEditExpenses('${d.dateStr}')">Редактировать</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Подсвечиваем текущий день при загрузке
+  const datePicker = document.getElementById("datePicker");
+  highlightSelectedDate(datePicker.value);
+}
+
+
 // Рендерим весь интерфейс
 function renderApp() {
   loadSettings(); // подгрузим новые настройки
@@ -197,15 +247,14 @@ function renderApp() {
 
   // Устанавливаем текущую дату в элементе выбора даты
   const datePicker = document.getElementById("datePicker");
-  datePicker.value = formatDate(new Date());
-  datePicker.onchange = onDateChanged;
-
-  // Отображаем расходы за текущий день
   renderExpensesForDate(datePicker.value);
   document.getElementById("dailyBudget").innerText = budgetPerDay;
   document.getElementById("currencySymbol").innerText = currency;
   document.getElementById("monthTable").style.display = "none";
 
+  // Отображаем таблицу месяца
+  renderMonthTable();
+}
 // Сбросить все данные
 function resetAll() {
   if (confirm("Точно удалить все данные?")) {
@@ -222,7 +271,7 @@ window.onload = () => {
   renderApp();
 
   // Обработчик изменения даты
-  const datePicker = document.getElementById("datePicker");
+    const datePicker = document.getElementById("datePicker");
   datePicker.onchange = () => renderExpensesForDate(datePicker.value);
 
   // Вешаем обработчик на кнопку добавления расхода
@@ -236,7 +285,7 @@ window.onload = () => {
 
   // Кнопка "Изменить настройки"
   document.getElementById("toggleSettingsBtn").onclick = () => {
-    document.getElementById("settingsSection").style.display = "block";
+  document.getElementById("settingsSection").style.display = "block";
     document.getElementById("mainSection").style.display = "none";
     document.getElementById("monthTable").style.display = "none";
   };
