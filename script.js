@@ -247,7 +247,7 @@ function renderApp() {
 
   // Устанавливаем текущую дату в элементе выбора даты
   const datePicker = document.getElementById("datePicker");
-  renderExpensesForDate(datePicker.value);
+  datePicker.value = formatDate(new Date());
 
 
   // Отображаем таблицу месяца
