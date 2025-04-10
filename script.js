@@ -248,9 +248,7 @@ function renderApp() {
   // Устанавливаем текущую дату в элементе выбора даты
   const datePicker = document.getElementById("datePicker");
   renderExpensesForDate(datePicker.value);
-  document.getElementById("dailyBudget").innerText = budgetPerDay;
-  document.getElementById("currencySymbol").innerText = currency;
-  document.getElementById("monthTable").style.display = "none";
+
 
   // Отображаем таблицу месяца
   renderMonthTable();
